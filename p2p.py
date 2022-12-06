@@ -1,6 +1,7 @@
 import socket, threading, sys
 
 BUFFER_SIZE = 256
+list_updated = False
 
 class P2PServer:        # Class for the P2P server
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    
@@ -63,6 +64,13 @@ class P2PServer:        # Class for the P2P server
             thread.daemon = True        # Daemonize the thread
             thread.start()      # Start the thread
             self.clients_list.append(c)     # Add the client to the list
+            #check if list updated
+            if list_updated:
+                # send list to clients
+                for client in self.clients_list:
+                    for client in self.clients_list:
+                        client.send(str(self.clients_list.getpeername()).encode())
+                list_updated = False
             print(str(addr[0]) + ':' + str(addr[1]), "connected")     # Print the address of the client
  
             
@@ -72,7 +80,7 @@ class P2PClient:        # Class for the P2P client
     def __init__(self, address):     # Constructor
         self.sock.connect((address, 8000))      # Connect to the server
         
-
+    def main_loop(self):        # Main loop for the client
         dest = input ("Enter the destination: ")     # Get the destination port
         self.sock.send(dest.encode())
         file = input("What file do you wanna send?\n >1 CSV/JSON file\n >2 IMG file\n >3 Simple string message\n >4 Disconnect\n")     # Ask the user what file they want to send
@@ -116,14 +124,27 @@ class P2PClient:        # Class for the P2P client
         self.sock.send(file_name.encode())     # Send the file name to the server
         print("File sent successfully\n")
 
+    def run(self):      # Runs the client
+        while True:     # Loop forever
+            thread = threading.Thread(target=self.main_loop)      # Create a thread for the client
+            thread.daemon = True        # Daemonize the thread
+            thread.start()      # Start the thread
+            while True:
+                if list_updated:
+                    data = self.sock.recv(BUFFER_SIZE)
+                    if not data:
+                        break
+                    print(str(data, 'utf-8'))
+                
+                
             
-
-
-
-
+            
+ 
+       
 
 if (len(sys.argv) > 1):     # If there is a command line argument:
     client = P2PClient(sys.argv[1])     # Create a P2P client with the argument as the server address
+    client.run()
 else:       # If there is no command line argument:
     server = P2PServer()        # Create a P2P server
     server.run()        # Run the server
