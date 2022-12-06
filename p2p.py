@@ -7,7 +7,7 @@ class P2PServer:        # Class for the P2P server
     clients_list = []       # List of clients
 
     def __init__(self):     # Constructor
-        self.sock.bind(('0.0.0.0', 8001))       # Bind to port 8000
+        self.sock.bind(('0.0.0.0', 8000))       # Bind to port 8000
         self.sock.listen(1)         # Listen for connections
 
     def handler(self, c, addr):        # Handler for client connections
@@ -70,7 +70,7 @@ class P2PClient:        # Class for the P2P client
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        # Create a socket object
     
     def __init__(self, address):     # Constructor
-        self.sock.connect((address, 8001))      # Connect to the server
+        self.sock.connect((address, 8000))      # Connect to the server
         
 
         dest = input ("Enter the destination: ")     # Get the destination port
